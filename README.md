@@ -25,9 +25,21 @@ Bot **不会**从索引直接下载 zip；WebUI 安装时会 `git clone` 到 `lo
 1. Fork 本仓。
 2. 在 `index.json` 的 `plugins` 数组追加条目（字段见 [`schema/index.schema.json`](schema/index.schema.json)）。
 3. 本地校验：`python tools/validate_index.py`
-4. 发起 PR，说明插件用途、仓库链接与自测情况。
+4. 发起 PR（**只需改 `index.json`**；README 插件表由 CI 自动同步），说明插件用途、仓库链接与自测情况。
 
 维护者合并后，已联网的 Bot 会在刷新商店时看到新条目（默认缓存约 30 秒）。
+
+**无需手工改 README 插件表**：同源 PR 与合并到 `main` 后，CI 会运行 `tools/sync_readme.py` 并自动提交表格更新。
+
+## 插件列表
+
+Bot 安装时读取 `index.json`；下表由 CI 根据 JSON **自动生成**，请勿手工改表格。
+
+<!-- PLUGIN_LIST_START -->
+| 名称 | ID | 作者 | 说明 |
+| --- | --- | --- | --- |
+| [牛牛互动](https://github.com/TogetsuDo/pallas-community-plugin-niuniu-interact) | `niuniu_interact` | [@TogetsuDo](https://github.com/TogetsuDo) | 名片点赞、戳一戳回图与群主设置专属头衔。社区插件开发示范。 |
+<!-- PLUGIN_LIST_END -->
 
 ## 条目示例
 
