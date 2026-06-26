@@ -48,6 +48,11 @@
           "type": "string",
           "minLength": 1
         },
+        "version": {
+          "type": "string",
+          "description": "插件发布版本（建议遵循语义化版本，如 0.1.0），与仓库 git tag、CHANGELOG.md 对应。",
+          "pattern": "^v?\\d+\\.\\d+\\.\\d+([.-].+)?$"
+        },
         "author": {
           "type": "string"
         },

@@ -11,6 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 INDEX_PATH = ROOT / "index.json"
 PLUGIN_ID_RE = re.compile(r"^[a-z][a-z0-9_]{0,63}$")
+VERSION_RE = re.compile(r"^v?\d+\.\d+\.\d+([.-].+)?$")
 ALLOWED_REPO_PREFIX = ("https://", "git@")
 
 
@@ -51,6 +52,9 @@ def main() -> None:
         ref = item.get("ref")
         if ref is not None and not str(ref).strip():
             fail(f"plugins[{i}].ref 不能为空字符串")
+        version = item.get("version")
+        if version is not None and not VERSION_RE.fullmatch(str(version).strip()):
+            fail(f"plugins[{i}].version 非法（应为语义化版本，如 0.1.0）：{version!r}")
 
     print(f"OK: {len(plugins)} plugin(s)")
 
