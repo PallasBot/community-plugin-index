@@ -9,7 +9,7 @@
       "description": "名片点赞、戳一戳回图与群主设置专属头衔。社区插件开发示范。",
       "repository": "https://github.com/TogetsuDo/pallas-community-plugin-interact.git",
       "ref": "main",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "author": "TogetsuDo",
       "homepage": "https://github.com/TogetsuDo/pallas-community-plugin-interact",
       "icon": "https://raw.githubusercontent.com/TogetsuDo/pallas-community-plugin-interact/main/assets/icon.png",
