@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-06-27",
+  "updated_at": "2026-07-21T07:17:04Z",
   "description": "Pallas-Bot 社区插件策展索引。提交收录请 PR 至本仓库。",
   "plugins": [
     {
@@ -9,13 +9,17 @@
       "description": "名片点赞、戳一戳回图与群主设置专属头衔。社区插件开发示范。",
       "repository": "https://github.com/TogetsuDo/pallas-community-plugin-interact.git",
       "ref": "main",
-      "version": "0.1.2",
+      "version": "0.1.3",
       "author": "TogetsuDo",
       "homepage": "https://github.com/TogetsuDo/pallas-community-plugin-interact",
       "icon": "https://raw.githubusercontent.com/TogetsuDo/pallas-community-plugin-interact/main/assets/icon.png",
       "cover": "https://raw.githubusercontent.com/TogetsuDo/pallas-community-plugin-interact/main/assets/cover.png",
       "avatar": "https://raw.githubusercontent.com/TogetsuDo/pallas-community-plugin-interact/main/assets/brand-avatar.png",
-      "tags": ["示范", "社交", "工具"],
+      "tags": [
+        "示范",
+        "社交",
+        "工具"
+      ],
       "min_pallas_version": "4.0.0"
     }
   ]
