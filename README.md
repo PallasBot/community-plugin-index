@@ -14,6 +14,7 @@ Bot 安装时读取 `index.json`；下表由 CI 根据 JSON 自动生成，请�
 | --- | --- | --- | --- |
 | [牛牛互动](https://github.com/TogetsuDo/pallas-community-plugin-interact) | `interact` | [@TogetsuDo](https://github.com/TogetsuDo) | 名片点赞、戳一戳回图与群主设置专属头衔。社区插件开发示范。 |
 | [牛牛爱发电](https://github.com/TogetsuDo/pallas-plugin-afdian) | `afdian` | [@TogetsuDo](https://github.com/TogetsuDo) | 通过爱发电为画画等功能提供可选额外额度与群共享额度。 |
+| [牛牛表情](https://github.com/TogetsuDo/pallas-plugin-memes) | `memes` | [@TogetsuDo](https://github.com/TogetsuDo) | 对接 meme-generator-rs，用口令搜索与制作表情包。 |
 <!-- PLUGIN_LIST_END -->
 
 ## 这份索引怎么用
