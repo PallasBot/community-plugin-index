@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-07-25T04:14:25Z",
+  "updated_at": "2026-07-25T04:20:12Z",
   "description": "Pallas-Bot 社区插件策展索引。提交收录请 PR 至本仓库。",
   "plugins": [
     {
@@ -28,12 +28,11 @@
       "description": "通过爱发电为画画等功能提供可选额外额度与群共享额度。",
       "repository": "https://github.com/TogetsuDo/pallas-plugin-afdian.git",
       "ref": "main",
-      "version": "0.1.0",
+      "version": "0.1.2",
       "author": "TogetsuDo",
       "homepage": "https://github.com/TogetsuDo/pallas-plugin-afdian",
       "icon": "https://raw.githubusercontent.com/TogetsuDo/pallas-plugin-afdian/main/assets/icon.png",
       "cover": "https://raw.githubusercontent.com/TogetsuDo/pallas-plugin-afdian/main/assets/cover.png",
-      "avatar": "https://raw.githubusercontent.com/TogetsuDo/pallas-plugin-afdian/main/assets/brand-avatar.png",
       "tags": [
         "额度",
         "爱发电",
