@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-07-25T08:19:15Z",
+  "updated_at": "2026-07-25T08:39:04Z",
   "description": "Pallas-Bot 社区插件策展索引。提交收录请 PR 至本仓库。",
   "plugins": [
     {
@@ -43,10 +43,10 @@
     {
       "id": "memes",
       "name": "牛牛表情",
-      "description": "对接 meme-generator-rs，用口令搜索与制作表情包。",
+      "description": "对接 meme-generator-rs，用口令搜索、制作与 AI 推荐表情包。",
       "repository": "https://github.com/TogetsuDo/pallas-plugin-memes.git",
       "ref": "main",
-      "version": "0.1.1",
+      "version": "0.2.0",
       "author": "TogetsuDo",
       "homepage": "https://github.com/TogetsuDo/pallas-plugin-memes",
       "icon": "https://raw.githubusercontent.com/TogetsuDo/pallas-plugin-memes/main/assets/icon.png",
