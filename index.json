@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-07-25T11:48:31Z",
+  "updated_at": "2026-07-26T05:49:53Z",
   "description": "Pallas-Bot 社区插件策展索引。提交收录请 PR 至本仓库。",
   "plugins": [
     {
@@ -9,7 +9,7 @@
       "description": "名片点赞、戳一戳回图与群主设置专属头衔。社区插件开发示范。",
       "repository": "https://github.com/TogetsuDo/pallas-community-plugin-interact.git",
       "ref": "main",
-      "version": "0.1.5",
+      "version": "0.1.6",
       "author": "TogetsuDo",
       "homepage": "https://github.com/TogetsuDo/pallas-community-plugin-interact",
       "icon": "https://raw.githubusercontent.com/TogetsuDo/pallas-community-plugin-interact/main/assets/icon.png",
@@ -28,7 +28,7 @@
       "description": "通过爱发电为画画等功能提供可选额外额度与群共享额度。",
       "repository": "https://github.com/TogetsuDo/pallas-plugin-afdian.git",
       "ref": "main",
-      "version": "0.1.6",
+      "version": "0.1.7",
       "author": "TogetsuDo",
       "homepage": "https://github.com/TogetsuDo/pallas-plugin-afdian",
       "icon": "https://raw.githubusercontent.com/TogetsuDo/pallas-plugin-afdian/main/assets/icon.png",
@@ -46,7 +46,7 @@
       "description": "对接 meme-generator-rs，用口令搜索、制作与 AI 推荐表情包。",
       "repository": "https://github.com/TogetsuDo/pallas-plugin-memes.git",
       "ref": "main",
-      "version": "0.2.1",
+      "version": "0.2.2",
       "author": "TogetsuDo",
       "homepage": "https://github.com/TogetsuDo/pallas-plugin-memes",
       "icon": "https://raw.githubusercontent.com/TogetsuDo/pallas-plugin-memes/main/assets/icon.png",
