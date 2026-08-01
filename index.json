@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-07-30T09:56:00Z",
+  "updated_at": "2026-08-01T10:42:34Z",
   "description": "Pallas-Bot 社区插件策展索引。提交收录请 PR 至本仓库。",
   "plugins": [
     {
@@ -55,6 +55,24 @@
         "表情",
         "meme",
         "玩法"
+      ],
+      "min_pallas_version": "4.0.0"
+    },
+    {
+      "id": "git_watch",
+      "name": "Git 监控",
+      "description": "定时轮询 GitHub，向指定群或好友推送仓库 Commit / Release 更新；预置 Pallas-Bot 与 WebUI。",
+      "repository": "https://github.com/Blackish-Red/pallas-plugin-git-watch.git",
+      "ref": "main",
+      "version": "0.1.0",
+      "author": "Blackish-Red",
+      "homepage": "https://github.com/Blackish-Red/pallas-plugin-git-watch",
+      "icon": "https://raw.githubusercontent.com/Blackish-Red/pallas-plugin-git-watch/main/assets/icon.png",
+      "cover": "https://raw.githubusercontent.com/Blackish-Red/pallas-plugin-git-watch/main/assets/cover.png",
+      "tags": [
+        "GitHub",
+        "更新推送",
+        "监控"
       ],
       "min_pallas_version": "4.0.0"
     }
