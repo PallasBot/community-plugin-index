@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-08-08T04:15:00Z",
+  "updated_at": "2026-08-08T04:23:13Z",
   "description": "Pallas-Bot 社区插件策展索引。提交收录请 PR 至本仓库。",
   "plugins": [
     {
@@ -82,9 +82,11 @@
       "description": "订阅明日方舟官方 B站动态并推送到当前群。",
       "repository": "https://github.com/Blackish-Red/pallas-plugin-bilibili.git",
       "ref": "main",
-      "version": "0.1.0",
+      "version": "0.1.2",
       "author": "Blackish-Red",
       "homepage": "https://github.com/Blackish-Red/pallas-plugin-bilibili",
+      "icon": "https://raw.githubusercontent.com/Blackish-Red/pallas-plugin-bilibili/main/assets/brand.png",
+      "cover": "https://raw.githubusercontent.com/Blackish-Red/pallas-plugin-bilibili/main/assets/brand.png",
       "tags": [
         "明日方舟",
         "B站",
