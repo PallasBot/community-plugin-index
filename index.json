@@ -100,7 +100,7 @@
       "description": "帕拉斯发起冲击，回应者随机承受牛角或源石法术。",
       "repository": "https://github.com/TogetsuDo/Pallas-Plugin-bull-rush.git",
       "ref": "main",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "author": "TogetsuDo",
       "homepage": "https://github.com/TogetsuDo/Pallas-Plugin-bull-rush",
       "tags": [
