@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-08-08T04:23:13Z",
+  "updated_at": "2026-08-08",
   "description": "Pallas-Bot 社区插件策展索引。提交收录请 PR 至本仓库。",
   "plugins": [
     {
@@ -93,6 +93,21 @@
         "推送"
       ],
       "min_pallas_version": "4.1.31"
+    },
+    {
+      "id": "bull_rush",
+      "name": "牛牛冲击",
+      "description": "帕拉斯发起冲击，回应者随机承受牛角或源石法术。",
+      "repository": "https://github.com/TogetsuDo/Pallas-Plugin-bull-rush.git",
+      "ref": "main",
+      "version": "0.1.0",
+      "author": "TogetsuDo",
+      "homepage": "https://github.com/TogetsuDo/Pallas-Plugin-bull-rush",
+      "tags": [
+        "娱乐",
+        "群聊"
+      ],
+      "min_pallas_version": "4.0.0"
     }
   ]
 }
