@@ -16,6 +16,7 @@ Bot 安装时读取 `index.json`；下表由 CI 根据 JSON 自动生成，请�
 | [牛牛爱发电](https://github.com/TogetsuDo/pallas-plugin-afdian) | `afdian` | [@TogetsuDo](https://github.com/TogetsuDo) | 通过爱发电为画画等功能提供可选额外额度与群共享额度。 |
 | [牛牛表情](https://github.com/TogetsuDo/pallas-plugin-memes) | `memes` | [@TogetsuDo](https://github.com/TogetsuDo) | 对接 meme-generator-rs，制作各种沙雕表情包。 |
 | [Git 监控](https://github.com/Blackish-Red/pallas-plugin-git-watch) | `git_watch` | [@Blackish-Red](https://github.com/Blackish-Red) | 定时轮询 GitHub，向指定群或好友推送仓库 Commit / Release 更新；预置 Pallas-Bot 与 WebUI。 |
+| [明日方舟B站动态](https://github.com/Blackish-Red/pallas-plugin-bilibili) | `bilibili_dynamic` | [@Blackish-Red](https://github.com/Blackish-Red) | 订阅明日方舟官方 B站动态并推送到当前群。 |
 <!-- PLUGIN_LIST_END -->
 
 ## 这份索引怎么用
