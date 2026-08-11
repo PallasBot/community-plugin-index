@@ -28,7 +28,7 @@
       "description": "通过爱发电为画画等功能提供可选额外额度与群共享额度。",
       "repository": "https://github.com/TogetsuDo/pallas-plugin-afdian.git",
       "ref": "main",
-      "version": "0.1.11",
+      "version": "0.1.12",
       "author": "TogetsuDo",
       "homepage": "https://github.com/TogetsuDo/pallas-plugin-afdian",
       "icon": "https://raw.githubusercontent.com/TogetsuDo/pallas-plugin-afdian/main/assets/icon.png",
