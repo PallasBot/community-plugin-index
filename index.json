@@ -46,7 +46,7 @@
       "description": "对接 meme-generator-rs，制作各种沙雕表情包。",
       "repository": "https://github.com/TogetsuDo/pallas-plugin-memes.git",
       "ref": "main",
-      "version": "0.2.8",
+      "version": "0.2.9",
       "author": "TogetsuDo",
       "homepage": "https://github.com/TogetsuDo/pallas-plugin-memes",
       "icon": "https://raw.githubusercontent.com/TogetsuDo/pallas-plugin-memes/main/assets/icon.png",
