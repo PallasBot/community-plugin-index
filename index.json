@@ -64,7 +64,7 @@
       "description": "定时轮询 GitHub，向指定群或好友推送仓库 Commit / Release 更新；预置 Pallas-Bot 与 WebUI。",
       "repository": "https://github.com/Blackish-Red/pallas-plugin-git-watch.git",
       "ref": "main",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "author": "Blackish-Red",
       "homepage": "https://github.com/Blackish-Red/pallas-plugin-git-watch",
       "icon": "https://raw.githubusercontent.com/Blackish-Red/pallas-plugin-git-watch/main/assets/icon.png",
