@@ -82,7 +82,7 @@
       "description": "订阅明日方舟官方 B站动态并推送到当前群。",
       "repository": "https://github.com/Blackish-Red/pallas-plugin-bilibili.git",
       "ref": "main",
-      "version": "0.1.7",
+      "version": "0.1.8",
       "author": "Blackish-Red",
       "homepage": "https://github.com/Blackish-Red/pallas-plugin-bilibili",
       "icon": "https://raw.githubusercontent.com/Blackish-Red/pallas-plugin-bilibili/main/assets/brand.png",
