@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-08-12",
+  "updated_at": "2026-08-13",
   "description": "Pallas-Bot 社区插件策展索引。提交收录请 PR 至本仓库。",
   "plugins": [
     {
@@ -46,7 +46,7 @@
       "description": "对接 meme-generator-rs，制作各种沙雕表情包。",
       "repository": "https://github.com/TogetsuDo/pallas-plugin-memes.git",
       "ref": "main",
-      "version": "0.2.9",
+      "version": "0.2.10",
       "author": "TogetsuDo",
       "homepage": "https://github.com/TogetsuDo/pallas-plugin-memes",
       "icon": "https://raw.githubusercontent.com/TogetsuDo/pallas-plugin-memes/main/assets/icon.png",
