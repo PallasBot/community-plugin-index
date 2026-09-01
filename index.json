@@ -108,6 +108,23 @@
         "群聊"
       ],
       "min_pallas_version": "4.3.8"
+    },
+    {
+      "id": "song_challenge",
+      "name": "推歌挑战",
+      "description": "30 天推歌挑战：群友按每日主题投稿歌曲，牛牛每天定时汇总推送。",
+      "repository": "https://github.com/hoshinoick811/pallas-plugin-song-challenge.git",
+      "ref": "main",
+      "version": "0.1.0",
+      "author": "hoshinoick811",
+      "homepage": "https://github.com/hoshinoick811/pallas-plugin-song-challenge",
+      "icon": "https://raw.githubusercontent.com/hoshinoick811/pallas-plugin-song-challenge/main/assets/icon.png",
+      "tags": [
+        "音乐",
+        "群聊",
+        "推歌"
+      ],
+      "min_pallas_version": "4.0.0"
     }
   ]
 }
