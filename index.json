@@ -132,7 +132,7 @@
       "description": "通过森空岛查询明日方舟与终末地游戏数据（角色卡片、签到、肉鸽、抽卡记录）。",
       "repository": "https://github.com/PallasBot/pallas-plugin-skland.git",
       "ref": "main",
-      "version": "0.7.1",
+      "version": "0.7.2",
       "author": "TogetsuDo",
       "homepage": "https://github.com/PallasBot/pallas-plugin-skland",
       "tags": [
