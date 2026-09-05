@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-09-05",
+  "updated_at": "2026-09-06",
   "description": "Pallas-Bot 社区插件策展索引。提交收录请 PR 至本仓库。",
   "plugins": [
     {
@@ -132,7 +132,7 @@
       "description": "通过森空岛查询明日方舟与终末地游戏数据（角色卡片、签到、肉鸽、抽卡记录）。",
       "repository": "https://github.com/PallasBot/pallas-plugin-skland.git",
       "ref": "main",
-      "version": "0.7.3",
+      "version": "0.7.4",
       "author": "TogetsuDo",
       "homepage": "https://github.com/PallasBot/pallas-plugin-skland",
       "tags": [
