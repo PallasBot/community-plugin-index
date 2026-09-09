@@ -142,6 +142,25 @@
         "签到"
       ],
       "min_pallas_version": "4.0.0"
+    },
+    {
+      "id": "prts_corpus",
+      "name": "PRTS 语料",
+      "description": "按需下载并检索 PRTS.chat 的明日方舟与终末地资料，为 LLM 提供带行号引用的原文检索。",
+      "repository": "https://github.com/TogetsuDo/Pallas-Plugin-Prts.git",
+      "ref": "main",
+      "version": "0.1.1",
+      "author": "TogetsuDo",
+      "homepage": "https://github.com/TogetsuDo/Pallas-Plugin-Prts",
+      "icon": "https://raw.githubusercontent.com/TogetsuDo/Pallas-Plugin-Prts/main/assets/icon.svg",
+      "cover": "https://raw.githubusercontent.com/TogetsuDo/Pallas-Plugin-Prts/main/assets/cover.svg",
+      "tags": [
+        "AI",
+        "知识库",
+        "明日方舟",
+        "终末地"
+      ],
+      "min_pallas_version": "4.4.2"
     }
   ]
 }
