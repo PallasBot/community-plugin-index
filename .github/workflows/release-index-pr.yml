@@ -1,0 +1,51 @@
+name: Release community index PR
+
+on:
+  workflow_dispatch:
+    inputs:
+      plugin_id:
+        description: Indexed plugin ID (currently memes)
+        required: true
+        type: string
+      version:
+        description: Strict X.Y.Z version
+        required: true
+        type: string
+      tag:
+        description: Exact source tag (vX.Y.Z)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-index-${{ inputs.plugin_id }}
+  cancel-in-progress: false
+  # GitHub caps this queue at 100 pending runs; retry overflow manually.
+  queue: max
+
+jobs:
+  create-pr:
+    if: github.repository == 'PallasBot/community-plugin-index' && github.ref == 'refs/heads/main' && vars.COMMUNITY_INDEX_SYNC_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: community-index-release
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Require dedicated PR token
+        env:
+          INDEX_PR_TOKEN: ${{ secrets.INDEX_PR_TOKEN }}
+        run: test -n "$INDEX_PR_TOKEN"
+      - name: Validate and create PR
+        env:
+          GH_TOKEN: ${{ secrets.INDEX_PR_TOKEN }}
+          PLUGIN_ID: ${{ inputs.plugin_id }}
+          VERSION: ${{ inputs.version }}
+          TAG: ${{ inputs.tag }}
+        run: python tools/release_index_pr.py --plugin-id "$PLUGIN_ID" --version "$VERSION" --tag "$TAG" --create-pr
