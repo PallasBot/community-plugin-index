@@ -22,6 +22,8 @@ permissions:
 concurrency:
   group: release-index-${{ inputs.plugin_id }}
   cancel-in-progress: false
+  # GitHub caps this queue at 100 pending runs; retry overflow manually.
+  queue: max
 
 jobs:
   create-pr:

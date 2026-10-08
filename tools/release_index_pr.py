@@ -27,6 +27,8 @@ class GitHub:
         if data is not None:
             command += ["--input", "-"]
         command.append(path)
+        # 固定 gh argv；受控端点不会变成选项，JSON 仅通过 stdin 传入。
+        # nosemgrep: python.lang.security.audit.dangerous-subprocess-use-audit
         result = subprocess.run(
             command,
             input=None if data is None else json.dumps(data),
@@ -289,6 +291,8 @@ def validate_local(candidate: dict, snapshot_sha: str) -> None:
             (ROOT / "tools/validate_index.py").read_text(encoding="utf-8"),
             encoding="utf-8",
         )
+        # 仅执行已核验 main 字节的固定 validator，候选 JSON 不作为代码执行。
+        # nosemgrep: python.lang.security.audit.dangerous-subprocess-use-audit
         subprocess.run(
             [sys.executable, str(root / "tools/validate_index.py")],
             cwd=temp,
@@ -296,6 +300,8 @@ def validate_local(candidate: dict, snapshot_sha: str) -> None:
             capture_output=True,
             text=True,
         )
+        # 固定 argv 与 --check；脚本字节已核验，JSON/README 不进入执行通路。
+        # nosemgrep: python.lang.security.audit.dangerous-subprocess-use-audit
         subprocess.run(
             [
                 sys.executable,
@@ -563,6 +569,7 @@ def create_or_resume_pr(
     version: str,
     expected_main_sha: str,
     expected_index_sha: str,
+    verified_source_sha: str,
     today: date,
 ) -> str:
     branch = f"chore/{plugin_id}-v{version}"
@@ -584,6 +591,11 @@ def create_or_resume_pr(
             api, base_tree_sha, base, branch, title, expected_main_sha, candidate
         )
 
+    current_source_sha = resolve_tag_commit(
+        api, PILOT[plugin_id], version, f"v{version}"
+    )
+    if current_source_sha != verified_source_sha:
+        raise ValueError("Git tag 已移动，原已核验发布与当前 tag 不再匹配")
     require_main(api, expected_main_sha)
     pull = api.request(
         "POST",
@@ -645,6 +657,7 @@ def main() -> int:
                 args.version,
                 snapshot_sha,
                 index_response["sha"],
+                commit,
                 today,
             )
         )

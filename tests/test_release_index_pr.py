@@ -4,7 +4,7 @@ import io
 import json
 import subprocess
 import unittest
-from datetime import date
+from datetime import date, datetime
 from unittest.mock import patch
 
 from tools.release_index_pr import (
@@ -107,7 +107,18 @@ class MainAPI:
     source_sha = "a" * 40
 
     def __init__(
-        self, index=None, tag_ref="refs/tags/v0.3.0", move_main_after=None, pulls=None
+        self,
+        index=None,
+        tag_ref="refs/tags/v0.3.0",
+        move_main_after=None,
+        pulls=None,
+        final_tag_sha=None,
+        final_tag_type="commit",
+        missing_final_tag=False,
+        move_main_after_ref=False,
+        existing_branch=False,
+        branch_parent=None,
+        branch_index=None,
     ):
         self.index = index or json.loads(
             (ROOT / "index.json").read_text(encoding="utf-8")
@@ -116,6 +127,15 @@ class MainAPI:
         self.move_main_after = move_main_after
         self.pulls = pulls or []
         self.main_reads = 0
+        self.final_tag_sha = final_tag_sha or self.source_sha
+        self.final_tag_type = final_tag_type
+        self.missing_final_tag = missing_final_tag
+        self.move_main_after_ref = move_main_after_ref
+        self.main_moved = False
+        self.created_branch = existing_branch
+        self.branch_parent = branch_parent or self.main_sha
+        self.branch_index = branch_index
+        self.tag_reads = 0
         self.calls = []
 
     def request(self, method, path, data=None):
@@ -124,10 +144,26 @@ class MainAPI:
         if path.endswith("/contents/index.json?ref=" + self.main_sha):
             return {**content(json.dumps(self.index)), "sha": self.index_sha}
         if path.endswith("/git/ref/tags/v0.3.0"):
+            self.tag_reads += 1
+            if self.missing_final_tag and self.tag_reads > 1:
+                raise subprocess.CalledProcessError(
+                    1, "gh", stderr="HTTP 404: Not Found"
+                )
             return {
                 "ref": self.tag_ref,
-                "object": {"type": "commit", "sha": self.source_sha},
+                "object": {
+                    "type": "commit" if self.tag_reads == 1 else self.final_tag_type,
+                    "sha": self.source_sha
+                    if self.tag_reads == 1
+                    else (
+                        "c" * 40 if self.final_tag_type == "tag" else self.final_tag_sha
+                    ),
+                },
             }
+        if path.endswith("/git/tags/" + "c" * 40):
+            return {"object": {"type": "commit", "sha": self.final_tag_sha}}
+        if path.endswith(f"/git/commits/{self.final_tag_sha}"):
+            return {"sha": self.final_tag_sha}
         if path.endswith(f"/git/commits/{self.source_sha}"):
             return {"sha": self.source_sha}
         if path.endswith(f"/contents/community-index.entry.json?ref={self.source_sha}"):
@@ -151,10 +187,14 @@ class MainAPI:
             return self.pulls
         if path.endswith("/git/ref/heads/main"):
             self.main_reads += 1
-            if self.move_main_after and self.main_reads >= self.move_main_after:
+            if self.main_moved or (
+                self.move_main_after and self.main_reads >= self.move_main_after
+            ):
                 return {"object": {"sha": "7" * 40}}
             return {"object": {"sha": self.main_sha}}
         if path.endswith(f"/git/commits/{self.main_sha}"):
+            return {"tree": {"sha": "6" * 40}}
+        if path.endswith(f"/git/commits/{'7' * 40}"):
             return {"tree": {"sha": "6" * 40}}
         if path.endswith("/git/trees/" + "6" * 40 + "?recursive=1"):
             return {
@@ -167,8 +207,28 @@ class MainAPI:
                     }
                 ]
             }
+        if path.endswith("/git/trees/" + "2" * 40 + "?recursive=1"):
+            return {
+                "tree": [
+                    {
+                        "path": "index.json",
+                        "mode": "100644",
+                        "type": "blob",
+                        "sha": "5" * 40,
+                    }
+                ]
+            }
         if path.endswith("/git/ref/heads/chore/memes-v0.3.0"):
+            if self.created_branch:
+                return {"object": {"sha": "3" * 40}}
             raise subprocess.CalledProcessError(1, "gh", stderr="HTTP 404: Not Found")
+        if path.endswith("/git/commits/" + "3" * 40):
+            return {
+                "parents": [{"sha": self.branch_parent}],
+                "tree": {"sha": "2" * 40},
+            }
+        if path.endswith("/contents/index.json?ref=" + "3" * 40):
+            return content(json.dumps(self.branch_index))
         if method == "POST" and path.endswith("/git/blobs"):
             return {"sha": "5" * 40}
         if method == "POST" and path.endswith("/git/trees"):
@@ -176,6 +236,9 @@ class MainAPI:
         if method == "POST" and path.endswith("/git/commits"):
             return {"sha": "3" * 40}
         if method == "POST" and path.endswith("/git/refs"):
+            self.created_branch = True
+            if self.move_main_after_ref:
+                self.main_moved = True
             return {}
         if method == "POST" and path.endswith("/pulls"):
             return {
@@ -184,7 +247,58 @@ class MainAPI:
         raise AssertionError((method, path))
 
 
+def assert_expected_writes(test_case, calls, expected):
+    writes = [(path, data) for method, path, data in calls if method == "POST"]
+    test_case.assertEqual(len(writes), len(expected))
+    for (path, data), (expected_path, expected_data) in zip(writes, expected):
+        test_case.assertEqual(path, expected_path)
+        test_case.assertIsInstance(data, dict)
+        if path.endswith("/pulls"):
+            test_case.assertEqual(set(data), {"title", "head", "base", "body"})
+            for key in ("title", "head", "base"):
+                test_case.assertEqual(data[key], expected_data[key])
+            for fact in ("ref 保持 main", "人工", "合并"):
+                test_case.assertIn(fact, data["body"])
+        else:
+            test_case.assertEqual(data, expected_data)
+
+
 class ReleaseIndexPRTests(unittest.TestCase):
+    def run_main_create(self, api):
+        class FixedDateTime:
+            @staticmethod
+            def now(tz):
+                return datetime(2026, 10, 9, tzinfo=tz)
+
+        with (
+            patch("tools.release_index_pr.GitHub", return_value=api),
+            patch("tools.release_index_pr.verify_snapshot", return_value=api.main_sha),
+            patch("tools.release_index_pr.datetime", FixedDateTime),
+            patch(
+                "sys.argv",
+                [
+                    "release_index_pr.py",
+                    "--plugin-id",
+                    "memes",
+                    "--version",
+                    "0.3.0",
+                    "--tag",
+                    "v0.3.0",
+                    "--create-pr",
+                ],
+            ),
+            contextlib.redirect_stdout(io.StringIO()),
+            contextlib.redirect_stderr(io.StringIO()),
+        ):
+            return main()
+
+    def test_release_workflow_uses_native_queued_concurrency(self):
+        workflow = (ROOT / ".github/workflows/release-index-pr.yml").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("  cancel-in-progress: false", workflow)
+        self.assertIn("  queue: max", workflow)
+
     def test_main_default_dry_run_uses_only_get_api_calls(self):
         api = MainAPI()
         with (
@@ -216,9 +330,65 @@ class ReleaseIndexPRTests(unittest.TestCase):
         self,
     ):
         api = MainAPI()
+        expected_index = json.loads(json.dumps(api.index))
+        next(item for item in expected_index["plugins"] if item["id"] == "memes")[
+            "version"
+        ] = "0.3.0"
+        expected_index["updated_at"] = "2026-10-09"
+        expected = [
+            (
+                f"repos/{CENTRAL}/git/blobs",
+                {
+                    "content": json.dumps(expected_index, ensure_ascii=False, indent=2)
+                    + "\n",
+                    "encoding": "utf-8",
+                },
+            ),
+            (
+                f"repos/{CENTRAL}/git/trees",
+                {
+                    "base_tree": "6" * 40,
+                    "tree": [
+                        {
+                            "path": "index.json",
+                            "mode": "100644",
+                            "type": "blob",
+                            "sha": "5" * 40,
+                        }
+                    ],
+                },
+            ),
+            (
+                f"repos/{CENTRAL}/git/commits",
+                {
+                    "message": "chore(index): memes 升至 v0.3.0",
+                    "tree": "4" * 40,
+                    "parents": [api.main_sha],
+                },
+            ),
+            (
+                f"repos/{CENTRAL}/git/refs",
+                {"ref": "refs/heads/chore/memes-v0.3.0", "sha": "3" * 40},
+            ),
+            (
+                f"repos/{CENTRAL}/pulls",
+                {
+                    "title": "chore(index): memes 升至 v0.3.0",
+                    "head": "chore/memes-v0.3.0",
+                    "base": "main",
+                },
+            ),
+        ]
+
+        class FixedDateTime:
+            @staticmethod
+            def now(tz):
+                return datetime(2026, 10, 9, tzinfo=tz)
+
         with (
             patch("tools.release_index_pr.GitHub", return_value=api),
             patch("tools.release_index_pr.verify_snapshot", return_value=api.main_sha),
+            patch("tools.release_index_pr.datetime", FixedDateTime),
             patch(
                 "sys.argv",
                 [
@@ -235,11 +405,33 @@ class ReleaseIndexPRTests(unittest.TestCase):
             contextlib.redirect_stdout(io.StringIO()),
         ):
             self.assertEqual(main(), 0)
-        writes = [(method, path) for method, path, _ in api.calls if method == "POST"]
-        self.assertEqual(
-            [path.rsplit("/", 1)[-1] for _, path in writes],
-            ["blobs", "trees", "commits", "refs", "pulls"],
+        assert_expected_writes(self, api.calls, expected)
+
+        post_indices = [
+            index for index, (method, _, _) in enumerate(api.calls) if method == "POST"
+        ]
+        self.assertEqual(len(post_indices), len(expected))
+        invalid_fields = (
+            {"content": "bad content"},
+            {"base_tree": "0" * 40},
+            {"parents": ["0" * 40]},
+            {"ref": "refs/heads/main"},
+            {"base": "dev"},
         )
+        for post_index, (path, _), bad_fields in zip(
+            post_indices, expected, invalid_fields
+        ):
+            original = api.calls[post_index]
+            self.assertEqual(original[1], path)
+            for invalid in (None, {}, bad_fields):
+                with self.subTest(path=path, invalid=invalid):
+                    corrupted = list(api.calls)
+                    data = (
+                        original[2] | bad_fields if invalid is bad_fields else invalid
+                    )
+                    corrupted[post_index] = (original[0], path, data)
+                    with self.assertRaises(AssertionError):
+                        assert_expected_writes(self, corrupted, expected)
 
         moved = MainAPI(move_main_after=2)
         with (
@@ -264,6 +456,138 @@ class ReleaseIndexPRTests(unittest.TestCase):
         ):
             self.assertEqual(main(), 1)
         self.assertFalse(any(method == "POST" for method, _, _ in moved.calls))
+
+    def test_tag_movement_and_missing_tag_block_pr_for_new_and_existing_branch(self):
+        for api in (MainAPI(final_tag_sha="b" * 40), MainAPI(missing_final_tag=True)):
+            with self.subTest(
+                final_tag_sha=api.final_tag_sha, missing=api.missing_final_tag
+            ):
+                self.assertEqual(self.run_main_create(api), 1)
+                self.assertTrue(api.created_branch)
+                self.assertFalse(
+                    any(
+                        method == "POST" and path.endswith("/pulls")
+                        for method, path, _ in api.calls
+                    )
+                )
+                self.assertFalse(
+                    any(method in {"PATCH", "DELETE"} for method, _, _ in api.calls)
+                )
+
+        for api in (
+            MainAPI(final_tag_sha="b" * 40),
+            MainAPI(missing_final_tag=True),
+        ):
+            candidate = build_candidate(api.index, "memes", "0.3.0", "2026-10-09")
+            api.created_branch = True
+            api.branch_index = candidate
+            api.tag_reads = 1
+            with self.subTest(existing_branch=True, missing=api.missing_final_tag):
+                with self.assertRaises((ValueError, subprocess.CalledProcessError)):
+                    create_or_resume_pr(
+                        api,
+                        candidate,
+                        "memes",
+                        "0.3.0",
+                        api.main_sha,
+                        api.index_sha,
+                        api.source_sha,
+                        date(2026, 10, 9),
+                    )
+                self.assertFalse(any(method == "POST" for method, _, _ in api.calls))
+                self.assertFalse(
+                    any(method in {"PATCH", "DELETE"} for method, _, _ in api.calls)
+                )
+
+    def test_annotated_tag_object_change_with_same_peeled_commit_is_allowed(self):
+        api = MainAPI(final_tag_type="tag")
+        self.assertEqual(self.run_main_create(api), 0)
+        tag_refs = [
+            path
+            for method, path, _ in api.calls
+            if method == "GET" and "/git/ref/tags/" in path
+        ]
+        self.assertEqual(len(tag_refs), 2)
+        self.assertIn(
+            f"repos/TogetsuDo/pallas-plugin-memes/git/tags/{'c' * 40}",
+            [path for _, path, _ in api.calls],
+        )
+        self.assertTrue(
+            any(
+                method == "POST" and path.endswith("/pulls")
+                for method, path, _ in api.calls
+            )
+        )
+
+    def test_open_pr_resume_skips_tag_recheck_and_writes(self):
+        api = MainAPI(final_tag_sha="b" * 40)
+        candidate = build_candidate(api.index, "memes", "0.3.0", "2026-10-09")
+        api.created_branch = True
+        api.branch_index = candidate
+        api.pulls = [
+            {
+                "state": "open",
+                "head": {
+                    "ref": "chore/memes-v0.3.0",
+                    "sha": "3" * 40,
+                    "repo": {"full_name": CENTRAL},
+                },
+                "base": {"ref": "main", "repo": {"full_name": CENTRAL}},
+                "html_url": "https://github.com/PallasBot/community-plugin-index/pull/1",
+            }
+        ]
+        self.assertEqual(
+            create_or_resume_pr(
+                api,
+                candidate,
+                "memes",
+                "0.3.0",
+                api.main_sha,
+                api.index_sha,
+                api.source_sha,
+                date(2026, 10, 9),
+            ),
+            api.pulls[0]["html_url"],
+        )
+        self.assertFalse(any("/git/ref/tags/" in path for _, path, _ in api.calls))
+        self.assertFalse(any(method == "POST" for method, _, _ in api.calls))
+
+    def test_main_moving_after_branch_creation_preserves_branch_and_retry_checks_parent(
+        self,
+    ):
+        api = MainAPI(move_main_after_ref=True)
+        self.assertEqual(self.run_main_create(api), 1)
+        self.assertTrue(api.created_branch)
+        self.assertFalse(
+            any(
+                method == "POST" and path.endswith("/pulls")
+                for method, path, _ in api.calls
+            )
+        )
+        self.assertFalse(
+            any(method in {"PATCH", "DELETE"} for method, _, _ in api.calls)
+        )
+
+        retry = MainAPI(existing_branch=True, branch_parent=api.main_sha)
+        retry.main_sha = "7" * 40
+        retry.branch_index = build_candidate(
+            retry.index, "memes", "0.3.0", "2026-10-09"
+        )
+        with self.assertRaisesRegex(ValueError, "直接子提交"):
+            create_or_resume_pr(
+                retry,
+                retry.branch_index,
+                "memes",
+                "0.3.0",
+                retry.main_sha,
+                retry.index_sha,
+                retry.source_sha,
+                date(2026, 10, 9),
+            )
+        self.assertFalse(any(method == "POST" for method, _, _ in retry.calls))
+        self.assertFalse(
+            any(method in {"PATCH", "DELETE"} for method, _, _ in retry.calls)
+        )
 
     def test_fork_wrong_base_and_closed_merged_prs_do_not_contaminate(self):
         branch = "chore/memes-v0.3.0"
@@ -616,6 +940,13 @@ class ReleaseIndexPRTests(unittest.TestCase):
                             }
                         ]
                     return []
+                if path.endswith("/git/ref/tags/v0.3.0"):
+                    return {
+                        "ref": "refs/tags/v0.3.0",
+                        "object": {"type": "commit", "sha": SHA},
+                    }
+                if path.endswith(f"/git/commits/{SHA}"):
+                    return {"sha": SHA}
                 if path.endswith("/git/ref/heads/main"):
                     return {"object": {"sha": base}}
                 if path.endswith("/git/ref/heads/chore/memes-v0.3.0"):
@@ -678,7 +1009,14 @@ class ReleaseIndexPRTests(unittest.TestCase):
         api = RetryAPI()
         with self.assertRaises(subprocess.CalledProcessError):
             create_or_resume_pr(
-                api, candidate, "memes", "0.3.0", base, "1" * 40, date(2026, 10, 8)
+                api,
+                candidate,
+                "memes",
+                "0.3.0",
+                base,
+                "1" * 40,
+                SHA,
+                date(2026, 10, 8),
             )
         before = len(api.calls)
         url = create_or_resume_pr(
@@ -688,6 +1026,7 @@ class ReleaseIndexPRTests(unittest.TestCase):
             "0.3.0",
             base,
             "1" * 40,
+            SHA,
             date(2026, 10, 9),
         )
         self.assertTrue(url.endswith("/pull/1"))
@@ -707,6 +1046,7 @@ class ReleaseIndexPRTests(unittest.TestCase):
             "0.3.0",
             base,
             "1" * 40,
+            SHA,
             date(2026, 10, 10),
         )
         self.assertTrue(url.endswith("/pull/1"))
@@ -772,6 +1112,7 @@ class ReleaseIndexPRTests(unittest.TestCase):
                 "0.3.0",
                 "c" * 40,
                 "1" * 40,
+                SHA,
                 date(2026, 10, 8),
             )
         stale = ConflictAPI([], branch=True)
@@ -783,6 +1124,7 @@ class ReleaseIndexPRTests(unittest.TestCase):
                 "0.3.0",
                 "c" * 40,
                 "1" * 40,
+                SHA,
                 date(2026, 10, 8),
             )
         self.assertFalse(
@@ -851,7 +1193,14 @@ class ReleaseIndexPRTests(unittest.TestCase):
             api = TreeAPI(leaves, parents)
             with self.assertRaises(ValueError):
                 create_or_resume_pr(
-                    api, candidate, "memes", "0.3.0", base, "1" * 40, date(2026, 10, 8)
+                    api,
+                    candidate,
+                    "memes",
+                    "0.3.0",
+                    base,
+                    "1" * 40,
+                    SHA,
+                    date(2026, 10, 8),
                 )
             self.assertFalse(any(method == "POST" for method, _, _ in api.calls))
 
@@ -895,6 +1244,7 @@ class ReleaseIndexPRTests(unittest.TestCase):
                 "0.3.0",
                 base,
                 "1" * 40,
+                SHA,
                 date(2026, 10, 8),
             )
         self.assertEqual(len(api.calls), 2)
@@ -936,7 +1286,14 @@ class ReleaseIndexPRTests(unittest.TestCase):
         api = ClosedAPI()
         with self.assertRaisesRegex(ValueError, "未合并关闭 PR"):
             create_or_resume_pr(
-                api, {}, "memes", "0.3.0", "c" * 40, "1" * 40, date(2026, 10, 8)
+                api,
+                {},
+                "memes",
+                "0.3.0",
+                "c" * 40,
+                "1" * 40,
+                SHA,
+                date(2026, 10, 8),
             )
         self.assertFalse(any(method == "POST" for method, _, _ in api.calls))
 
