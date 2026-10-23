@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-10-21",
+  "updated_at": "2026-10-23",
   "description": "Pallas-Bot 社区插件策展索引。提交收录请 PR 至本仓库。",
   "plugins": [
     {
@@ -149,7 +149,7 @@
       "description": "按需下载并检索 PRTS.chat 的明日方舟与终末地资料，为 LLM 提供带行号引用的原文检索。",
       "repository": "https://github.com/TogetsuDo/Pallas-Plugin-Prts.git",
       "ref": "main",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "author": "TogetsuDo",
       "homepage": "https://github.com/TogetsuDo/Pallas-Plugin-Prts",
       "icon": "https://raw.githubusercontent.com/TogetsuDo/Pallas-Plugin-Prts/main/assets/icon.svg",
